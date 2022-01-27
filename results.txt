@@ -1,0 +1,21 @@
+
+BERT_MODEL with 3 - extracted features 
+=*= bug =*=
+precision:      0.8293
+recall:         0.8780
+F1 score:       0.8530
+
+=*= enhancement =*=
+precision:      0.8267
+recall:         0.8356
+F1 score:       0.8311
+
+=*= question =*=
+precision:      0.5973
+recall:         0.3656
+F1 score:       0.4536
+
+=*= global =*=
+precision:      0.8158
+recall:         0.8158
+F1 score:       0.8158

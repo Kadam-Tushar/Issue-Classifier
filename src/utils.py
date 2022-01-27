@@ -12,11 +12,12 @@ import ast
 
 # class for Text Dataset that will be used in DataLoader API
 class CustomTextDataset(Dataset):
+    # Input is dataframe 
     def __init__(self, df):
         self.df = df 
         
     def __getitem__(self, idx):
-        
+        # item is dictionary of all the encodings, extra features for the text and label
         item = {key: torch.tensor(val) for key, val in ast.literal_eval(self.df.iloc[idx]["encodings"]).items()}
         item['features'] = torch.tensor(ast.literal_eval(self.df.iloc[idx]["features"]))
         item['label'] = torch.tensor(self.df.iloc[idx]["label"])
@@ -122,7 +123,7 @@ def save(model, optimizer,output_model):
     }, output_model)
 
 # load model checkpoint
-def load(model,optimizer):
+def load(model,optimizer,output_model):
     d = torch.load(output_model)
     model.load_state_dict(d["model_state_dict"])
     optimizer.load_state_dict(d["optimizer_state_dict"])
