@@ -43,4 +43,4 @@ def get_home_path(user):
     if user == 'tusharpk':
         return '/data1/scratch/tusharpk/issue/'
     elif user == 'shikhar':
-        return '/scratch/shikhar/Issue-Classifier/data/'
+        return '/data1/scratch/shikhar/Issue-Classifier/data/'
