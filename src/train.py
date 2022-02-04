@@ -38,11 +38,12 @@ def train(args):
                 print("[INFO] Epoch: {} Loss : {}".format(epoch,running_loss/args.update_freq))
                 wandb.log({"Loss": running_loss/args.update_freq})
                 running_loss = 0.0
+                break
 
             loss.backward()
             optim.step()
         output_model = args.SAVED_MODELS_DIR + "BERT_classifier"+ args.DATASET_SUFFIX+ "_" + str(epoch) +  ".bin"
-        save(model, optim,output_model)
+        save(model, optim, output_model)
         print("[INFO] Model saved for epoch: {}".format(epoch))
         P,R,F1 = evaluate_model(model, args)
         wandb.log({'Precision': P, 'Recall': R, 'F1': F1})
@@ -59,4 +60,5 @@ if __name__ == "__main__":
     create_modified_dataset(args)
     wandb.init(project=args.project, entity="iisc1")
     wandb.config = logging_args
+    print('Logging following arguments', logging_args)
     train(args)

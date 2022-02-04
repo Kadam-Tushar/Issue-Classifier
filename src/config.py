@@ -30,7 +30,7 @@ def get_arguments():
         print(f'Warning: Unparsed arguments {unparsed}')
 
     args.device = get_device(args) #Get correct cuda device
-    args.DATASET_DIR = get_home_path(args.user)
+    args.DATASET_DIR = get_data_dir_path(args.user)
     args.SAVED_MODELS_DIR = args.DATASET_DIR + 'save/'
     args.LABEL_MAP = { "bug": 0, "enhancement": 1, "question": 2}
     args.INV_LABEL_MAP = {0: "bug", 1: "enhancement", 2: "question"}
@@ -39,8 +39,8 @@ def get_arguments():
     return args, logging_args
 
 
-def get_home_path(user):
+def get_data_dir_path(user):
     if user == 'tusharpk':
         return '/data1/scratch/tusharpk/issue/'
     elif user == 'shikhar':
-        return '/data1/scratch/shikhar/Issue-Classifier/data/'
+        return '/data1/scratch/shikhar/Issue-Classifier/'

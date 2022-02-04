@@ -30,8 +30,8 @@ class CustomTextDataset(Dataset):
 def text2vec(sentence, args):
     if "bert" in args.EMB_MODEL_CHECKPOINT:
         tokenizer = AutoTokenizer.from_pretrained(args.EMB_MODEL_CHECKPOINT)
-        model = AutoModel.from_pretrained(args.EMB_MODEL_CHECKPOINT).to(device)
-        encoded_input = tokenizer(sentence, return_tensors='pt',padding=True, truncation=True).to(device)
+        model = AutoModel.from_pretrained(args.EMB_MODEL_CHECKPOINT).to(args.device)
+        encoded_input = tokenizer(sentence, return_tensors='pt',padding=True, truncation=True).to(args.device)
         output = model(**encoded_input)
         # First token is CLS token and its representation will contain information about sentence
         # So we will use it for classification tasks
@@ -130,13 +130,24 @@ def loss_fn(outputs, targets):
     return torch.nn.CrossEntropyLoss()(outputs, targets)
 
 
+def check_path(path, exist_ok=True):
+    """Check if `path` exists, makedirs if not else warning/IOError."""
+    if os.path.exists(path):
+        if not exist_ok:
+            raise IOError(f"[ERROR] path {path} exists, stop.")
+    else:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        print(f'[INFO] created directory {os.path.dirname(path)}')
+
+
 # save model checkpoint
-def save(model, optimizer,output_model):
+def save(model, optimizer, output_model_path):
     # save
+    check_path(output_model_path)
     torch.save({
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict()
-    }, output_model)
+    }, output_model_path)
 
 
 # load model checkpoint
