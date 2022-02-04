@@ -1,14 +1,12 @@
 import wandb
-import os
 import pandas as pd
-import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import AdamW
 
 from config import get_arguments
-from utils import set_random_seed, dataset_generator, CustomTextDataset, loss_fn, create_modified_dataset
+from utils import set_random_seed, CustomTextDataset, loss_fn, create_modified_dataset, save
 from models import BERTClass
 from evaluate import evaluate_model
 
@@ -46,9 +44,10 @@ def train(args):
         output_model = args.SAVED_MODELS_DIR + "BERT_classifier"+ args.DATASET_SUFFIX+ "_" + str(epoch) +  ".bin"
         save(model, optim,output_model)
         print("[INFO] Model saved for epoch: {}".format(epoch))
+        P,R,F1 = evaluate_model(model, args)
+        wandb.log({'Precision': P, 'Recall': R, 'F1': F1})
+        print("[INFO] Model evaluated and scores logged to server")
 
-    P,R,F1 = evaluate_model(model, args)
-    wandb.log({'Precision': P, 'Recall': R, 'F1': F1})
     output_model = args.SAVED_MODELS_DIR + "BERT_classifier"+ args.DATASET_SUFFIX+".bin"
     save(model, optim, output_model)
     print("[INFO] Model saved!")
@@ -56,7 +55,7 @@ def train(args):
 
 if __name__ == "__main__":
     args, logging_args = get_arguments()
-    set_random_seed(args.seed)
+    set_random_seed(args.seed, is_cuda = args.device == torch.device('cuda'))
     create_modified_dataset(args)
     wandb.init(project=args.project, entity="iisc1")
     wandb.config = logging_args

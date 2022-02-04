@@ -1,11 +1,10 @@
+import os
 import pandas as pd
 import numpy as np
 import torch
 from transformers import AutoTokenizer, AutoModel
-from torch.utils.data import DataLoader
 from tqdm import tqdm
-from torch.utils.data import Dataset, DataLoader
-from sklearn import preprocessing
+from torch.utils.data import Dataset
 import sklearn.metrics
 import ast
 import random
@@ -95,17 +94,17 @@ def dataset_generator(orig_df, output_filename, args):
 
 def create_modified_dataset(args, dtype=['train']):
     for dataset_type in dtype:
-        if not os.path.isfile(args.DATASET_DIR + args.EMB_MODEL_CHECKPOINT + "_" + args.dataset_type + args.DATASET_SUFFIX+ ".csv"):
-            print("[INFO] " + args.dataset_type + " dataset not found. Creating...")
-            df = pd.read_csv(args.DATASET_DIR + args.dataset_type + ".csv")
+        if not os.path.isfile(args.DATASET_DIR + args.EMB_MODEL_CHECKPOINT + "_" + dataset_type + args.DATASET_SUFFIX+ ".csv"):
+            print("[INFO] " + dataset_type + " dataset not found. Creating...")
+            df = pd.read_csv(args.DATASET_DIR + dataset_type + ".csv")
             #df = df[:100] for testing
-            dataset_generator(df,args.EMB_MODEL_CHECKPOINT + "_" + args.dataset_type + args.DATASET_SUFFIX + ".csv", args)
-            print("[INFO] " + args.dataset_type + " dataset created.")
+            dataset_generator(df,args.EMB_MODEL_CHECKPOINT + "_" + dataset_type + args.DATASET_SUFFIX + ".csv", args)
+            print("[INFO] " + dataset_type + " dataset created.")
         else:
-            print("[INFO] " + args.dataset_type + " dataset found.")
+            print("[INFO] " + dataset_type + " dataset found.")
 
 
-def get_benchmarks(y_true,y_pred):
+def get_benchmarks(y_true,y_pred, INV_LABEL_MAP):
     for label in [0,1,2]:
         P_c = sklearn.metrics.precision_score(y_true, y_pred, average=None, labels=[label])[0]
         R_c = sklearn.metrics.recall_score(y_true, y_pred, average=None, labels=[label])[0]

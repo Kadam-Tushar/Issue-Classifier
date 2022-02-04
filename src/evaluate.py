@@ -1,20 +1,18 @@
-import os
 import pandas as pd
-import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 from tqdm import tqdm
-from transformers import AdamW
 
 from models import BERTClass
-from utils import get_benchmarks, create_modified_dataset
+from utils import get_benchmarks, create_modified_dataset, load, set_random_seed, CustomTextDataset
+from config import get_arguments
 
 
 def load_model(args):
     model = BERTClass()
     model.to(args.device)
     output_model = args.SAVED_MODELS_DIR + "BERT_classifier"+ args.DATASET_SUFFIX+".bin"
-    load(model,optim,output_model)
+    load(model, output_model)
     return model
 
 
@@ -24,7 +22,7 @@ def evaluate_model(model, args):
     test_dataset = CustomTextDataset(test_df)
 
     test_loader = DataLoader(test_dataset, batch_size=args.BATCH_SIZE, shuffle=True)
-    optim = AdamW(model.parameters(), lr=args.LEARNING_RATE)
+    
 
     model.eval()
     print("[INFO] Model loaded!")
@@ -33,20 +31,20 @@ def evaluate_model(model, args):
     y_true = []
     y_pred = []
     for batch in tqdm(test_loader):
-        input_ids = batch['input_ids'].to(device)
-        attention_mask = batch['attention_mask'].to(device)
-        token_type_ids = batch['token_type_ids'].to(device)
-        features = batch["features"].to(device)
-        labels = batch['label'].to(device)
+        input_ids = batch['input_ids'].to(args.device)
+        attention_mask = batch['attention_mask'].to(args.device)
+        token_type_ids = batch['token_type_ids'].to(args.device)
+        features = batch["features"].to(args.device)
+        labels = batch['label'].to(args.device)
         outputs = model(input_ids, attention_mask, token_type_ids,features)
         y_true += labels.cpu().detach().numpy().tolist()
         y_pred += torch.argmax(outputs, dim=1).cpu().detach().numpy().tolist()
 
-    return get_benchmarks(y_true,y_pred)
+    return get_benchmarks(y_true,y_pred, args.INV_LABEL_MAP)
 
 
 if __name__ == '__main__':
     args, logging_args = get_arguments()
-    set_random_seed(args.seed)
+    set_random_seed(args.seed, is_cuda = args.device == torch.device('cuda'))
     model = load_model(args)
-    _ = evaluate_model(model,args)
+    _ = evaluate_model(model, args)
