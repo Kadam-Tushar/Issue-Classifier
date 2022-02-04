@@ -38,7 +38,6 @@ def train(args):
                 print("[INFO] Epoch: {} Loss : {}".format(epoch,running_loss/args.update_freq))
                 wandb.log({"Loss": running_loss/args.update_freq})
                 running_loss = 0.0
-                break
 
             loss.backward()
             optim.step()
