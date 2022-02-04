@@ -6,7 +6,7 @@ from tqdm import tqdm
 from transformers import AdamW
 
 from config import get_arguments
-from utils import set_random_seed, CustomTextDataset, loss_fn, create_modified_dataset, save
+from utils import set_random_seed, CustomTextDataset, loss_fn, create_modified_dataset, save, get_free_gpus
 from models import BERTClass
 from evaluate import evaluate_model
 
@@ -58,7 +58,16 @@ def train(args):
     print("[INFO] Model saved!")
 
 
+def setup_visible_gpus():
+    free_gpu_list = get_free_gpus(memory_req=20000,gpu_req=8)
+    run_on_gpu = max(free_gpu_list)
+    import os
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(run_on_gpu)
+    print(f'[INFO] Running on cuda device {run_on_gpu}')
+
+
 if __name__ == "__main__":
+    setup_visible_gpus()
     args, logging_args = get_arguments()
     set_random_seed(args.seed, is_cuda = args.device == torch.device('cuda'))
     create_modified_dataset(args)
