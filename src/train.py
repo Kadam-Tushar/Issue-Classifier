@@ -22,7 +22,7 @@ def train(args):
     optim = AdamW(model.parameters(), lr=args.LEARNING_RATE)
 
     running_loss = 0.0
-
+    best_p, best_r, best_f1 = 0,0,0
     for epoch in range(args.EPOCHS):
         for idx,batch in enumerate(tqdm(train_loader)):
             optim.zero_grad()
@@ -49,9 +49,15 @@ def train(args):
         # Evaluate model at every epoch
         P,R,F1 = evaluate_model(model, args)
         wandb.log({'Precision': P, 'Recall': R, 'F1': F1})
+        best_p = max(best_p,P)
+        best_r = max(best_r,R)
+        best_f1 = max(best_f1,F1)
         ##############################
-        
         print("[INFO] Model evaluated and scores logged to server")
+    
+    wandb.run.summary["best_P"] = best_p
+    wandb.run.summary["best_R"] = best_r
+    wandb.run.summary["best_F1"] = best_f1
 
     output_model = args.SAVED_MODELS_DIR + "BERT_classifier"+ args.DATASET_SUFFIX+".bin"
     save(model, optim, output_model)
