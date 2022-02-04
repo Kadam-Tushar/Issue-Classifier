@@ -42,11 +42,16 @@ def train(args):
 
             loss.backward()
             optim.step()
+        
         output_model = args.SAVED_MODELS_DIR + "BERT_classifier"+ args.DATASET_SUFFIX+ "_" + str(epoch) +  ".bin"
         save(model, optim, output_model)
         print("[INFO] Model saved for epoch: {}".format(epoch))
+        
+        # Evaluate model at every epoch
         P,R,F1 = evaluate_model(model, args)
         wandb.log({'Precision': P, 'Recall': R, 'F1': F1})
+        ##############################
+        
         print("[INFO] Model evaluated and scores logged to server")
 
     output_model = args.SAVED_MODELS_DIR + "BERT_classifier"+ args.DATASET_SUFFIX+".bin"
@@ -58,7 +63,5 @@ if __name__ == "__main__":
     args, logging_args = get_arguments()
     set_random_seed(args.seed, is_cuda = args.device == torch.device('cuda'))
     create_modified_dataset(args)
-    wandb.init(project=args.project, entity="iisc1")
-    wandb.config = logging_args
-    print('Logging following arguments', logging_args)
+    wandb.init(project=args.project, entity="iisc1", config = logging_args)
     train(args)

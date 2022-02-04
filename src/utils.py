@@ -130,20 +130,22 @@ def loss_fn(outputs, targets):
     return torch.nn.CrossEntropyLoss()(outputs, targets)
 
 
-def check_path(path, exist_ok=True):
+def check_path(path, overwrite=False):
     """Check if `path` exists, makedirs if not else warning/IOError."""
+    directory = os.path.dirname(path)
     if os.path.exists(path):
-        if not exist_ok:
+        if not overwrite:
             raise IOError(f"[ERROR] path {path} exists, stop.")
     else:
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        print(f'[INFO] created directory {os.path.dirname(path)}')
+        if not os.path.exists(directory):
+            print(f'[INFO] created directory {directory}')
+        os.makedirs(directory, exist_ok=True)
 
 
 # save model checkpoint
 def save(model, optimizer, output_model_path):
     # save
-    check_path(output_model_path)
+    check_path(output_model_path, overwrite=True) 
     torch.save({
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict()
