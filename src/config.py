@@ -19,7 +19,7 @@ def get_arguments():
     parser.add_argument('--MODEL_NAME', type=str, default = 'BERT')
     parser.add_argument('--TITLE_MAX_LEN', type=int, default = 100)
     parser.add_argument('--BATCH_SIZE', type=int, default = 32)
-    parser.add_argument('--LEARNING_RATE', type=int, default = 5e-5)
+    parser.add_argument('--LEARNING_RATE', type=float, default = 5e-5)
     parser.add_argument('--EPOCHS', type=int, default = 3)
     parser.add_argument('--update_freq', type=int, default = 5000)
     parser.add_argument('--EARLY_ISSUE_THRESHOLD', type=int, default = 50)
