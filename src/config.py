@@ -21,7 +21,7 @@ def get_arguments():
     parser.add_argument('--TITLE_MAX_LEN', type=int, default = 100)
     parser.add_argument('--ISSUE_TEXT_MAX_LEN', type=int, default = 512)
     parser.add_argument('--BATCH_SIZE', type=int, default = 16)
-    parser.add_argument('--LEARNING_RATE', type=float, default = 5.7834022685908154e-05)
+    parser.add_argument('--LEARNING_RATE', type=float, default = 2.1834022685908154e-05)
     parser.add_argument('--EPOCHS', type=int, default = 4)
     parser.add_argument('--update_freq', type=int, default = 5000)
     parser.add_argument('--EARLY_ISSUE_THRESHOLD', type=int, default = 98)
