@@ -8,8 +8,8 @@ class BERTClass(torch.nn.Module):
         self.l1 = transformers.AutoModel.from_pretrained(args.EMB_MODEL_CHECKPOINT).to(args.device)
         self.l2 = torch.nn.Dropout(args.dropout)
         # Output size is 1024 for bert-large and 768 for bert-base models and 3 features are added from EDA
-        output_size = 1024 if "large" in args.MODEL_NAME   else 768 
-        self.l3 = torch.nn.Linear(output_size + 3, 3)
+        output_size = 1024 if "large" in args.EMB_MODEL_CHECKPOINT else 768 
+        self.l3 = torch.nn.Linear(output_size + 4, 3)
 
     def forward(self, ids, mask,features):
         out = self.l1(ids, attention_mask = mask)
