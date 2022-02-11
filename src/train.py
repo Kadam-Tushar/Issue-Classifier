@@ -33,33 +33,36 @@ def train(args):
 
     for epoch in range(args.EPOCHS):
         output_model = args.SAVED_MODELS_DIR + args.MODEL_NAME +"_classifier"+ args.DATASET_SUFFIX+ "_" + str(epoch) +  ".bin"
-        
+        should_train = True 
+
         # Check if trained model of current epoch exists already and if yes, load it. Else, train the model
         if os.path.isfile(output_model):
-            print(f"[INFO] model {output_model} exists, skip training this epoch.")
+            print(f"[INFO] model {output_model} exists, skip training this epoch. Only Evaluate the model")
             load(model,optim,output_model)
-            continue
+            should_train = False
         
-        for idx,batch in enumerate(tqdm(train_loader)):
-            optim.zero_grad()
-            input_ids = batch['input_ids'].to(args.device)
-            attention_mask = batch['attention_mask'].to(args.device)
-            #token_type_ids = batch['token_type_ids'].to(args.device) No need to pass token_type_ids as it is not used in BERTClass. 
-            labels = batch['label'].to(args.device)
-            features = batch["features"].to(args.device)
-            outputs = model(input_ids, attention_mask,features)
-            loss = loss_fn(outputs, labels)
-            running_loss += loss.item() #Bug?
-            if idx % args.update_freq == 0 and idx != 0:
-                print("[INFO] Epoch: {} Loss : {}".format(epoch,running_loss/args.update_freq))
-                wandb.log({"Loss": running_loss/args.update_freq})
-                running_loss = 0.0
 
-            loss.backward()
-            optim.step()
+        if should_train:
+            for idx,batch in enumerate(tqdm(train_loader)):
+                optim.zero_grad()
+                input_ids = batch['input_ids'].to(args.device)
+                attention_mask = batch['attention_mask'].to(args.device)
+                #token_type_ids = batch['token_type_ids'].to(args.device) No need to pass token_type_ids as it is not used in BERTClass. 
+                labels = batch['label'].to(args.device)
+                features = batch["features"].to(args.device)
+                outputs = model(input_ids, attention_mask,features)
+                loss = loss_fn(outputs, labels)
+                running_loss += loss.item() #Bug?
+                if idx % args.update_freq == 0 and idx != 0:
+                    print("[INFO] Epoch: {} Loss : {}".format(epoch,running_loss/args.update_freq))
+                    wandb.log({"Loss": running_loss/args.update_freq})
+                    running_loss = 0.0
 
-        save(model, optim, output_model)
-        print("[INFO] Model saved for epoch: {}".format(epoch))
+                loss.backward()
+                optim.step()
+
+            save(model, optim, output_model)
+            print("[INFO] Model saved for epoch: {}".format(epoch))
         
         # Evaluate model at every epoch
         P,R,F1 = evaluate_model(model, args)
