@@ -157,11 +157,11 @@ def clean_body(text):
     text = re.sub(r'```(.*?)```','[CODE]',text) # replace github code with [CODE]
     text = re.sub(r'https?://\S+|www\.\S+','[URL]',text) # replace urls with [URL]
     text = re.sub(r'@\S+','[USER]',text) # replace @user with [USER]
-    text = re.sub(r'\s+',' ',text) # replace multiple spaces with single space
     text = re.sub(r'^>','',text) #Remove > symbol from start of line
-    text = re.sub(r'\d+','[NUM]',text) # replace numbers with [NUM]
+    text = re.sub(r'\d+','[NUMBER]',text) # replace numbers with [NUMBER]
     text = re.sub(r'`(.*?)`','[CODE_INLINE]',text) # replace in line code blocks with [CODE_INLINE]
     text = re.sub(r'\n',' ',text) # replace new line with space
+    text = re.sub(r'\s+',' ',text) # replace multiple spaces with single space
     return text
 
 

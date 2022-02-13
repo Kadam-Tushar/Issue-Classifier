@@ -1,7 +1,7 @@
 import argparse
 from utils import get_device, get_args_dict
 import torch
-import json 
+import json
 def get_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, default=1)
@@ -12,7 +12,7 @@ def get_arguments():
 
     # Add data args
     parser.add_argument('--dataset_type', type=str, default = 'test')
-    parser.add_argument('--DATASET_SUFFIX', type=str, default = '_body_added')
+    parser.add_argument('--DATASET_SUFFIX', type=str, default = '_cleaned_body')
 
     # Add model args
     parser.add_argument('--device', type=str, default = 'auto', help = 'gpu, cpu or auto')
@@ -37,9 +37,8 @@ def get_arguments():
     args.EMB_MODEL_CHECKPOINT_NAME = args.EMB_MODEL_CHECKPOINT.replace("/","-")
     if len(unparsed)>0:
         print(f'Warning: Unparsed arguments {unparsed}')
-    
-    # Setting index of cuda device 
-    torch.cuda.set_device(6)
+
+    # Setting index of cuda device
     args.device = get_device(args) #Get correct cuda device
     args.DATASET_DIR = get_data_dir_path(args.user)
     args.SAVED_MODELS_DIR = args.DATASET_DIR + 'save/'
