@@ -228,8 +228,12 @@ def get_benchmarks(y_true,y_pred, INV_LABEL_MAP):
     return (P,R,F1)
 
 
-def loss_fn(outputs, targets):
-    return torch.nn.CrossEntropyLoss()(outputs, targets)
+def loss_fn(outputs, targets, weight = None):
+    if weight is not None:
+        weight_vec = torch.Tensor(weight).type_as(outputs)
+        return torch.nn.CrossEntropyLoss(weight = weight_vec)(outputs, targets)
+    else:
+        return torch.nn.CrossEntropyLoss()(outputs, targets)
 
 
 def check_path(path, overwrite=False):
