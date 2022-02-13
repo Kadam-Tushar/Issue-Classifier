@@ -195,7 +195,7 @@ def dataset_generator(orig_df, output_filename, args):
 
     modified_df["is_question"] = modified_df.issue_title.apply(lambda x : isQ.predict_question(x))
 
-    modified_df["issue_text"] =  modified_df["issue_title"] + " " + list(map(clean_body, modified_df["issue_body"]))
+    modified_df["issue_text"] =  modified_df["issue_title"] + " [B] " + modified_df["issue_body"].apply(clean_body)
 
     print("head of modified_df for debugging: ")
     print(modified_df["issue_text"].head())
