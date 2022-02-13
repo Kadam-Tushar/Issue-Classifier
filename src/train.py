@@ -6,7 +6,7 @@ from tqdm import tqdm
 from transformers import AdamW
 import os
 from config import get_arguments
-from utils import set_random_seed, CustomTextDataset, loss_fn, create_modified_dataset, save, load
+from utils import set_random_seed, CustomTextDataset, loss_fn, create_modified_dataset, save, load, get_free_gpus
 from models import BERTClass
 from evaluate import evaluate_model
 
@@ -30,7 +30,7 @@ def train(args):
 
     # Best epoch is epoch where we get the best F1 score
     wandb.run.summary["best_epoch"] = 0
-
+    
     for epoch in range(args.EPOCHS):
         output_model = args.SAVED_MODELS_DIR + args.MODEL_NAME +"_classifier"+ args.DATASET_SUFFIX+ "_" + str(epoch) +  ".bin"
         should_train = True 
@@ -71,17 +71,29 @@ def train(args):
         wandb.run.summary["best_R"] = wandb.run.summary["best_R"] if wandb.run.summary["best_R"] > R else R
         wandb.run.summary["best_F1"] = wandb.run.summary["best_F1"] if wandb.run.summary["best_F1"] > F1 else F1
         wandb.run.summary["best_epoch"] = wandb.run.summary["best_epoch"] if wandb.run.summary["best_F1"] > F1 else epoch
-        
+
         ##############################
-        
         print("[INFO] Model evaluated and scores logged to server")
+    
+    wandb.run.summary["best_P"] = best_p
+    wandb.run.summary["best_R"] = best_r
+    wandb.run.summary["best_F1"] = best_f1
 
     output_model = args.SAVED_MODELS_DIR + args.MODEL_NAME + "_classifier"+ args.DATASET_SUFFIX+".bin"
     save(model, optim, output_model)
     print("[INFO] Model saved!")
 
 
+def setup_visible_gpus():
+    free_gpu_list = get_free_gpus(memory_req=20000,gpu_req=8)
+    run_on_gpu = max(free_gpu_list)
+    import os
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(run_on_gpu)
+    print(f'[INFO] Running on cuda device {run_on_gpu}')
+
+
 if __name__ == "__main__":
+    setup_visible_gpus()
     args, logging_args = get_arguments()
     set_random_seed(args.seed, is_cuda = args.device == torch.device('cuda'))
     create_modified_dataset(args)
