@@ -13,6 +13,7 @@ def get_arguments():
     # Add data args
     parser.add_argument('--dataset_type', type=str, default = 'test')
     parser.add_argument('--DATASET_SUFFIX', type=str, default = '_cleaned_body')
+    parser.add_argument('--force_train', dest='force_train', action = 'store_true', default=False)
 
     # Add model args
     parser.add_argument('--device', type=str, default = 'auto', help = 'gpu, cpu or auto')

@@ -36,7 +36,7 @@ def train(args):
         should_train = True 
 
         # Check if trained model of current epoch exists already and if yes, load it. Else, train the model
-        if os.path.isfile(output_model):
+        if not args.force_train and os.path.isfile(output_model):
             print(f"[INFO] model {output_model} exists, skip training this epoch. Only Evaluate the model")
             load(model,optim,output_model)
             should_train = False
@@ -75,9 +75,6 @@ def train(args):
         ##############################
         print("[INFO] Model evaluated and scores logged to server")
     
-    wandb.run.summary["best_P"] = best_p
-    wandb.run.summary["best_R"] = best_r
-    wandb.run.summary["best_F1"] = best_f1
 
     output_model = args.SAVED_MODELS_DIR + args.MODEL_NAME + "_classifier"+ args.DATASET_SUFFIX+".bin"
     save(model, optim, output_model)
