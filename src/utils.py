@@ -190,7 +190,6 @@ def dataset_generator(orig_df, output_filename, args):
     modified_df['issue_body'] = orig_df.issue_body.tolist()
     modified_df["issue_body"].replace(np.nan, '', inplace=True)
     modified_df["is_early_issue"] = modified_df.issue_number.apply(lambda x: 1 if x < args.EARLY_ISSUE_THRESHOLD else 0)
-    modified_df["issue_body_length"] = modified_df.issue_body.apply(lambda x: len(x.split()) if type(x)!=float else 0)
     modified_df["is_opened_owner"] = modified_df.issue_author_association.apply(lambda x: 1 if x == "OWNER" else 0)
 
     modified_df["is_question"] = modified_df.issue_title.apply(lambda x : isQ.predict_question(x))
@@ -200,9 +199,9 @@ def dataset_generator(orig_df, output_filename, args):
     print("head of modified_df for debugging: ")
     print(modified_df["issue_text"].head())
 
-    # Preprocessing steps: tokenization of titles and 3 features from EDA : is_early_issue, issue_body_length, is_opened_owner
+    # Preprocessing steps: tokenization of titles and 3 features from EDA : is_early_issue, is_opened_owner
     modified_df["encodings"] = modified_df.issue_text.apply(lambda x: str(tokenizer(x,padding='max_length', truncation=True, max_length=args.ISSUE_TEXT_MAX_LEN)))
-    modified_df["features"] = modified_df.apply(lambda x: str([x.is_early_issue, x.issue_body_length, x.is_opened_owner, x.is_question]), axis=1)
+    modified_df["features"] = modified_df.apply(lambda x: str([x.is_early_issue, x.is_opened_owner, x.is_question]), axis=1)
     modified_df = modified_df[["encodings","features", "label"]]
     modified_df.to_csv(args.DATASET_DIR + output_filename,index=False)
 
