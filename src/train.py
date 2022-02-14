@@ -51,8 +51,8 @@ def train(args):
                 labels = batch['label'].to(args.device)
                 features = batch["features"].to(args.device)
                 outputs = model(input_ids, attention_mask,features)
-                loss = loss_fn(outputs, labels)
-                running_loss += loss.item() #Bug?
+                loss = loss_fn(outputs, labels, weight = args.weight)
+                running_loss += loss.item()
                 if idx % args.update_freq == 0 and idx != 0:
                     print("[INFO] Epoch: {} Loss : {}".format(epoch,running_loss/args.update_freq))
                     wandb.log({"Loss": running_loss/args.update_freq})
@@ -75,7 +75,6 @@ def train(args):
         ##############################
         print("[INFO] Model evaluated and scores logged to server")
     
-
     output_model = args.SAVED_MODELS_DIR + args.MODEL_NAME + "_classifier"+ args.DATASET_SUFFIX+".bin"
     save(model, optim, output_model)
     print("[INFO] Model saved!")

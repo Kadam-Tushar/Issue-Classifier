@@ -12,8 +12,12 @@ def get_arguments():
 
     # Add data args
     parser.add_argument('--dataset_type', type=str, default = 'test')
+<<<<<<< HEAD
     parser.add_argument('--DATASET_SUFFIX', type=str, default = '_cleaned_body')
     parser.add_argument('--force_train', dest='force_train', action = 'store_true', default=False)
+=======
+    parser.add_argument('--DATASET_SUFFIX', type=str, default = '_oversamplingQ')
+>>>>>>> oversampling
 
     # Add model args
     parser.add_argument('--device', type=str, default = 'auto', help = 'gpu, cpu or auto')
@@ -27,6 +31,7 @@ def get_arguments():
     parser.add_argument('--update_freq', type=int, default = 5000)
     parser.add_argument('--EARLY_ISSUE_THRESHOLD', type=int, default = 98)
     parser.add_argument('--dropout', type=float, default = 0.2421181906958028)
+    parser.add_argument('--weight', nargs = '+', type=float, default = [1.0, 1.0, 1.0], help='weight for bug, enhancement and question respectively (space separated)')
 
     args, unparsed = parser.parse_known_args()
 
@@ -38,8 +43,13 @@ def get_arguments():
     args.EMB_MODEL_CHECKPOINT_NAME = args.EMB_MODEL_CHECKPOINT.replace("/","-")
     if len(unparsed)>0:
         print(f'Warning: Unparsed arguments {unparsed}')
+<<<<<<< HEAD
 
     # Setting index of cuda device
+=======
+    
+    # Setting index of cuda device 
+>>>>>>> oversampling
     args.device = get_device(args) #Get correct cuda device
     args.DATASET_DIR = get_data_dir_path(args.user)
     args.SAVED_MODELS_DIR = args.DATASET_DIR + 'save/'
