@@ -21,7 +21,7 @@ class BERTClass(torch.nn.Module):
         dimensions( out[0][:,0,:]) =  [batch_size, hidden_size] of [CLS] token
         """
         out = self.l2(out[0][:,0,:]) # Average output from last k hidden layers TODO
-        features = torch.cat([self.feature_embedding_layer[i](features[i]) for i in range(3)], dim=-1)
+        features = torch.cat([self.feature_embedding_layer[i](features[:,i]) for i in range(3)], dim=-1)
         out = torch.cat((out,features),dim = -1) # Concatenate embedded features with average output
         output = self.l3(out)
         return output
