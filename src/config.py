@@ -56,4 +56,4 @@ def get_data_dir_path(user):
     if user == 'tusharpk':
         return '/data1/scratch/tusharpk/issue/'
     elif user == 'shikhar':
-        return '/home/shikharb/Issue-Classifier/data/'
+        return '/data1/scratch/shikhar/IssueClassifierRuns/'
