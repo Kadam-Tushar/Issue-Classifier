@@ -22,9 +22,9 @@ def get_arguments():
     parser.add_argument('--TITLE_MAX_LEN', type=int, default = 100)
     parser.add_argument('--ISSUE_TEXT_MAX_LEN', type=int, default = 512)
     parser.add_argument('--BATCH_SIZE', type=int, default = 16)
-    parser.add_argument('--LEARNING_RATE', type=float, default = 2.1834022685908154e-05)
+    parser.add_argument('--LEARNING_RATE', type=float, default = 1e-05)
     parser.add_argument('--EPOCHS', type=int, default = 4)
-    parser.add_argument('--update_freq', type=int, default = 5000)
+    parser.add_argument('--update_freq', type=int, default = 10000) #4 times per epoch
     parser.add_argument('--EARLY_ISSUE_THRESHOLD', type=int, default = 98)
     parser.add_argument('--dropout', type=float, default = 0.2421181906958028)
     parser.add_argument('--weight', nargs = '+', type=float, default = [1.0, 1.0, 1.0], help='weight for bug, enhancement and question respectively (space separated)')
@@ -56,4 +56,4 @@ def get_data_dir_path(user):
     if user == 'tusharpk':
         return '/data1/scratch/tusharpk/issue/'
     elif user == 'shikhar':
-        return '/data1/scratch/shikhar/IssueClassifierRuns/'
+        return '/home/shikharb/Issue-Classifier/data/'

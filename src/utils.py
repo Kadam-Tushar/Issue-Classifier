@@ -208,12 +208,10 @@ def dataset_generator(orig_df, output_filename, args):
 
 def create_modified_dataset(args, dtype=['train']):
     for dataset_type in dtype:
-        if not os.path.isfile(args.DATASET_DIR + args.EMB_MODEL_CHECKPOINT_NAME + "_" + dataset_type + args.DATASET_SUFFIX+ ".csv"):
+        if not os.path.isfile(args.DATASET_DIR + args.EMB_MODEL_CHECKPOINT_NAME + "_" + dataset_type + args.DATASET_SUFFIX+ ".split.csv"):
             print("[INFO] " + dataset_type + " dataset not found. Creating...")
-            df = pd.read_csv(args.DATASET_DIR + dataset_type + ".csv")
-            # for testing pipeline on small dataset.
-            #df = df[:100]
-            dataset_generator(df,args.EMB_MODEL_CHECKPOINT_NAME + "_" + dataset_type + args.DATASET_SUFFIX + ".csv", args)
+            df = pd.read_csv(args.DATASET_DIR + dataset_type + ".split.csv")
+            dataset_generator(df,args.EMB_MODEL_CHECKPOINT_NAME + "_" + dataset_type + args.DATASET_SUFFIX + ".split.csv", args)
             print("[INFO] " + dataset_type + " dataset created.")
         else:
             print("[INFO] " + dataset_type + " dataset found.")

@@ -23,7 +23,7 @@ def train(args):
 
     running_loss = 0.0
 
-    # Setting Summary metrics
+    # Setting Summary metrics for epochwise evaluation
     wandb.run.summary["best_P"] = 0.0
     wandb.run.summary["best_R"] = 0.0
     wandb.run.summary["best_F1"] = 0.0
@@ -53,28 +53,32 @@ def train(args):
                 outputs = model(input_ids, attention_mask,features)
                 loss = loss_fn(outputs, labels, weight = args.weight)
                 running_loss += loss.item()
+                loss.backward()
+                optim.step()
+                # Eval and Log
                 if idx % args.update_freq == 0 and idx != 0:
                     print("[INFO] Epoch: {} Loss : {}".format(epoch,running_loss/args.update_freq))
                     wandb.log({"Loss": running_loss/args.update_freq})
                     running_loss = 0.0
 
-                loss.backward()
-                optim.step()
+                    P,R,F1 = evaluate_model(model, args, split = 'val')
+                    model.train() #Necessary after calling eval above
+                    wandb.log({'Precision': P, 'Recall': R, 'F1': F1})
+                    print("[INFO] Model evaluated and scores logged to server")
 
             save(model, optim, output_model)
             print("[INFO] Model saved for epoch: {}".format(epoch))
         
-        # Evaluate model at every epoch
-        P,R,F1 = evaluate_model(model, args)
+        P,R,F1 = evaluate_model(model, args, split = 'val')
+        model.train() # Necessary after eval
         wandb.log({'Precision': P, 'Recall': R, 'F1': F1})
         wandb.run.summary["best_P"] = wandb.run.summary["best_P"] if wandb.run.summary["best_P"] > P else P
         wandb.run.summary["best_R"] = wandb.run.summary["best_R"] if wandb.run.summary["best_R"] > R else R
         wandb.run.summary["best_F1"] = wandb.run.summary["best_F1"] if wandb.run.summary["best_F1"] > F1 else F1
         wandb.run.summary["best_epoch"] = wandb.run.summary["best_epoch"] if wandb.run.summary["best_F1"] > F1 else epoch
-
-        ##############################
         print("[INFO] Model evaluated and scores logged to server")
-    
+        ##############################
+
     output_model = args.SAVED_MODELS_DIR + args.MODEL_NAME + "_classifier"+ args.DATASET_SUFFIX+".bin"
     save(model, optim, output_model)
     print("[INFO] Model saved!")
