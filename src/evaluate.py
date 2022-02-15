@@ -18,7 +18,7 @@ def load_model(args):
 
 def evaluate_model(model, args, split='test', limit_examples=None):
     create_modified_dataset(args, dtype = [split])
-    eval_df = pd.read_csv(args.DATASET_DIR + args.EMB_MODEL_CHECKPOINT_NAME + "_test" + args.DATASET_SUFFIX + ".csv")
+    eval_df = pd.read_csv(args.DATASET_DIR + args.EMB_MODEL_CHECKPOINT_NAME + "_" + split + args.DATASET_SUFFIX + ".split.csv")
     eval_dataset = CustomTextDataset(eval_df)
 
     eval_loader = DataLoader(eval_dataset, batch_size=args.BATCH_SIZE, shuffle=True)
