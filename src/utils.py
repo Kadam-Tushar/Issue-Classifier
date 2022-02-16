@@ -236,7 +236,8 @@ def get_benchmarks(y_true,y_pred, INV_LABEL_MAP):
     print(f"precision:\t{P:.4f}")
     print(f"recall:\t\t{R:.4f}")
     print(f"F1 score:\t{F1:.4f}")
-    return (P,R,F1)
+    #For multi class classification, the F1 score is equal to precision and recall, by def.
+    return F1
 
 
 def loss_fn(outputs, targets, weight = None):
@@ -270,10 +271,11 @@ def save(model, optimizer, output_model_path):
 
 
 # load model checkpoint
-def load(model,optimizer,output_model):
+def load(model, output_model, optimizer = None):
     d = torch.load(output_model)
     model.load_state_dict(d["model_state_dict"])
-    optimizer.load_state_dict(d["optimizer_state_dict"])
+    if optimizer is not None:
+        optimizer.load_state_dict(d["optimizer_state_dict"])
 
 
 ##############################################################
