@@ -1,3 +1,4 @@
+from cProfile import run
 import wandb
 import pandas as pd
 import torch
@@ -12,35 +13,33 @@ from evaluate import evaluate_model
 
 
 def train(args):
-    train_df = pd.read_csv(args.DATASET_DIR + args.EMB_MODEL_CHECKPOINT_NAME + "_train" + args.DATASET_SUFFIX + ".csv")
+    train_df = pd.read_csv(args.DATASET_DIR + args.EMB_MODEL_CHECKPOINT_NAME + "_train" + args.DATASET_SUFFIX + ".split.csv")
     train_dataset = CustomTextDataset(train_df)
 
     model = BERTClass(args)
     model.to(args.device)
 
     train_loader = DataLoader(train_dataset, batch_size=args.BATCH_SIZE, shuffle=True)
-    optim = AdamW(model.parameters(), lr=args.LEARNING_RATE)
+    optim = torch.optim.Adam(model.parameters(), lr=args.LEARNING_RATE)
 
     running_loss = 0.0
 
-    # Setting Summary metrics
-    wandb.run.summary["best_P"] = 0.0
-    wandb.run.summary["best_R"] = 0.0
+    # Setting Summary metrics for epochwise evaluation
     wandb.run.summary["best_F1"] = 0.0
 
     # Best epoch is epoch where we get the best F1 score
     wandb.run.summary["best_epoch"] = 0
-    
-    for epoch in range(args.EPOCHS):
-        output_model = args.SAVED_MODELS_DIR + args.MODEL_NAME +"_classifier"+ args.DATASET_SUFFIX+ "_" + str(epoch) +  ".bin"
-        should_train = True 
+    wandb.run.summary["best_step"] = 0
 
-        # Check if trained model of current epoch exists already and if yes, load it. Else, train the model
-        if os.path.isfile(output_model):
-            print(f"[INFO] model {output_model} exists, skip training this epoch. Only Evaluate the model")
-            load(model,optim,output_model)
-            should_train = False
-        
+    output_model_name = args.SAVED_MODELS_DIR + args.MODEL_NAME +"_classifier"+ args.DATASET_SUFFIX+ "_" + 'best' +  ".bin"
+
+    for epoch in range(args.EPOCHS):
+        should_train = True
+        # # Check if trained model of current epoch exists already and if yes, load it. Else, train the model
+        # if not args.force_train and os.path.isfile(output_model):
+        #     print(f"[INFO] model {output_model} exists, skip training this epoch. Only Evaluate the model")
+        #     load(model,optim,output_model)
+        #     should_train = False
 
         if should_train:
             for idx,batch in enumerate(tqdm(train_loader)):
@@ -51,49 +50,47 @@ def train(args):
                 labels = batch['label'].to(args.device)
                 features = batch["features"].to(args.device)
                 outputs = model(input_ids, attention_mask,features)
-                loss = loss_fn(outputs, labels)
-                running_loss += loss.item() #Bug?
+                loss = loss_fn(outputs, labels, weight = args.weight)
+                running_loss += loss.item()
+                loss.backward()
+                optim.step()
+                # Eval and Log
                 if idx % args.update_freq == 0 and idx != 0:
                     print("[INFO] Epoch: {} Loss : {}".format(epoch,running_loss/args.update_freq))
                     wandb.log({"Loss": running_loss/args.update_freq})
                     running_loss = 0.0
 
-                loss.backward()
-                optim.step()
+                    F1 = evaluate_model(model, args, split = 'val')
+                    model.train() #Necessary after calling eval above
+                    wandb.log({'F1': F1}) # Log F1 score for model trained upto this step
+                    print("[INFO] Model evaluated and scores logged to server")
+                    if F1 > wandb.run.summary["best_F1"]:
+                        save(model,optim,output_model_name)
+                        wandb.run.summary["best_F1"] = F1
+                        wandb.run.summary["best_epoch"] = epoch
+                        wandb.run.summary["best_step"] = idx
+                        print(f"[INFO] Model saved for epoch: {epoch}.{idx}")
+                    else:
+                        wandb.run.summary["best_F1"] = wandb.run.summary["best_F1"]
 
-            save(model, optim, output_model)
-            print("[INFO] Model saved for epoch: {}".format(epoch))
-        
-        # Evaluate model at every epoch
-        P,R,F1 = evaluate_model(model, args)
-        wandb.log({'Precision': P, 'Recall': R, 'F1': F1})
-        wandb.run.summary["best_P"] = wandb.run.summary["best_P"] if wandb.run.summary["best_P"] > P else P
-        wandb.run.summary["best_R"] = wandb.run.summary["best_R"] if wandb.run.summary["best_R"] > R else R
-        wandb.run.summary["best_F1"] = wandb.run.summary["best_F1"] if wandb.run.summary["best_F1"] > F1 else F1
-        wandb.run.summary["best_epoch"] = wandb.run.summary["best_epoch"] if wandb.run.summary["best_F1"] > F1 else epoch
-
-        ##############################
-        print("[INFO] Model evaluated and scores logged to server")
-    
-    wandb.run.summary["best_P"] = best_p
-    wandb.run.summary["best_R"] = best_r
-    wandb.run.summary["best_F1"] = best_f1
-
-    output_model = args.SAVED_MODELS_DIR + args.MODEL_NAME + "_classifier"+ args.DATASET_SUFFIX+".bin"
-    save(model, optim, output_model)
-    print("[INFO] Model saved!")
+    # Generate test scores
+    load(model, output_model_name)
+    F1 = evaluate_model(model, args, split = 'test')
+    wandb.run.summary["test_F1"] = F1
+    print("[INFO] Model evaluated on test set and scores logged to server")
 
 
 def setup_visible_gpus():
-    free_gpu_list = get_free_gpus(memory_req=20000,gpu_req=8)
+    free_gpu_list = get_free_gpus(memory_req=22000,gpu_req=8)
     run_on_gpu = max(free_gpu_list)
+    print('Script returns best gpu:',run_on_gpu)
     import os
     os.environ['CUDA_VISIBLE_DEVICES'] = str(run_on_gpu)
     print(f'[INFO] Running on cuda device {run_on_gpu}')
 
 
 if __name__ == "__main__":
-    setup_visible_gpus()
+    # setup_visible_gpus(override=0)
     args, logging_args = get_arguments()
     set_random_seed(args.seed, is_cuda = args.device == torch.device('cuda'))
     create_modified_dataset(args)
