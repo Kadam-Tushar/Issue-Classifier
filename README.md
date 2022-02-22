@@ -16,18 +16,18 @@ cd data && ./get_data.sh
 To train the model in the paper, run this command:
 
 ```train
-python src/train.py --DATASET_SUFFIX _roberta --MODEL_NAME roberta --EMB_MODEL_CHECKPOINT roberta-base --device gpu
+python src/train.py --DATASET_SUFFIX _dropfeature --MODEL_NAME roberta --EMB_MODEL_CHECKPOINT roberta-base --device gpu
 ```
 Use `--device cpu` if you do not have access to a GPU.
 
 ## Predictions
 
-1. Download the trained RoBERTA model from LINK[TODO] and put it in `./data/save/` directory.
+1. Download the trained RoBERTA model from [Google Drive](https://drive.google.com/file/d/1YN70CEIWWidRmqvwPgUGECtVy4NjayIy/view?usp=sharing) and put it in `./data/save/` directory.
 
 2. To generate results on the test data, run:
 
 ```predictions
-python src/evaluate.py --DATASET_SUFFIX _roberta --MODEL_NAME roberta --EMB_MODEL_CHECKPOINT roberta-base --device gpu
+python src/evaluate.py --DATASET_SUFFIX _dropfeature --MODEL_NAME roberta --EMB_MODEL_CHECKPOINT roberta-base --device gpu
 ```
 
 This assumes that the trained model is present in `/data/save/` directory.
