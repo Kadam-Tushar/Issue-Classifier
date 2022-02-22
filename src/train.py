@@ -17,6 +17,7 @@ def train(args):
     train_dataset = CustomTextDataset(train_df)
 
     model = BERTClass(args)
+    model.train()
     model.to(args.device)
 
     train_loader = DataLoader(train_dataset, batch_size=args.BATCH_SIZE, shuffle=True)
