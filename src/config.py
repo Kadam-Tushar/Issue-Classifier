@@ -7,7 +7,7 @@ def get_arguments():
     parser.add_argument('--seed', type=int, default=1)
 
     # Add user specific args
-    parser.add_argument('--user', type=str, default = 'tusharpk')
+    parser.add_argument('--user', type=str, default = 'newuser')
     parser.add_argument('--project', type=str, default = 'test_project')
 
     # Add data args
@@ -57,3 +57,5 @@ def get_data_dir_path(user):
         return '/data1/scratch/tusharpk/issue/'
     elif user == 'shikhar':
         return '/data1/scratch/shikhar/IssueClassifierRuns/'
+    else:
+        return './data/'
