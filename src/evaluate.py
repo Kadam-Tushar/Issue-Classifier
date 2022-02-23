@@ -9,7 +9,7 @@ from config import get_arguments
 
 
 def load_model(args):
-    model = BERTClass()
+    model = BERTClass(args)
     model.to(args.device)
     output_model_name = args.SAVED_MODELS_DIR + args.MODEL_NAME +"_classifier"+ args.DATASET_SUFFIX+ "_" + 'best' +  ".bin"
     load(model, output_model_name)
