@@ -18,6 +18,12 @@ various BERT-style models for generating textual embeddings. Our
 proposed solution performs better than the competition organizer’s
 method and achieves an 𝐹1 score of 0.8653 (Approx 5% increase). 
 
+
+## Model Architecture 
+<p align="center">
+  <img src="arch.png"/> 
+</p>
+
 ## Setup
 
 1. Install requirements with
