@@ -1,6 +1,6 @@
 # Issue-Classifier
 
-Our submission for [NLBSE 2022](https://nlbse2022.github.io/) in the tool competition track.  
+Our submission for [NLBSE 2022](https://nlbse2022.github.io/) in the tool competition track. (Humble flex - We came 2nd! :sunglasses:)
 
 
 
